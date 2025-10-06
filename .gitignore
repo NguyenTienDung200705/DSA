@@ -13,3 +13,12 @@
 # OS files
 .DS_Store
 Thumbs.db
+
+# Bỏ qua các file tạm của LaTeX
+*.aux
+*.log
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+*.out
