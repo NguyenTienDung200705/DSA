@@ -1,4 +1,15 @@
-__pycache__/
-*.pyc
-.vscode/
-*.ipynb_checkpoints/
+# Compiled files
+*.out
+*.o
+*.obj
+*.exe
+
+# Build folders
+/build/
+/bin/
+/debug/
+/release/
+
+# OS files
+.DS_Store
+Thumbs.db
