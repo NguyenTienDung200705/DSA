@@ -1,24 +1,23 @@
-# Compiled files
-*.out
-*.o
-*.obj
+# ===============================
+# 1️⃣  Bỏ qua toàn bộ file tạm của VSCode
+.vscode/
+
+# 2️⃣  Bỏ qua file thực thi (.exe)
 *.exe
 
-# Build folders
-/build/
-/bin/
-/debug/
-/release/
+# 3️⃣  Bỏ qua tất cả file trong Text Lab3
+/Lab3/Text Lab3/*
 
-# OS files
-.DS_Store
-Thumbs.db
+# ✅ Nhưng vẫn giữ lại file PDF
+!/Lab3/Text Lab3/Lab3.pdf
 
-# Bỏ qua các file tạm của LaTeX
+# 4️⃣  Giữ lại toàn bộ file .cpp trong Code Lab3
+!/Lab3/Code Lab3/*.cpp
+
+# ===============================
+# (Tuỳ chọn) bỏ qua file build của LaTeX
 *.aux
 *.log
+*.synctex.gz
 *.fls
 *.fdb_latexmk
-*.synctex.gz
-*.toc
-*.out
