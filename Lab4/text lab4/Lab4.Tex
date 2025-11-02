@@ -1,0 +1,1289 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[T5]{fontenc}          % Bảng mã tiếng Việt
+\usepackage[utf8]{inputenc}       % Cho phép nhập ký tự UTF-8
+\usepackage[main=vietnamese,english]{babel}   % Hỗ trợ tiếng Việt là ngôn ngữ chính
+
+\usepackage{amsmath,amssymb}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{caption}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{float}
+\usepackage{array}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{multirow}
+\usepackage[ruled,vlined]{algorithm2e}
+\geometry{left=25mm,right=25mm,top=25mm,bottom=25mm}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  stringstyle=\color{red},
+  numbers=none,
+  frame=single,
+  breaklines=true,
+  showstringspaces=false
+}
+
+
+\title{\textbf{LAB 4: Các thuật toán sắp xếp}}
+\author{Nguyễn Tiến Dũng - 23001585}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\subsection*{1. Lý thuyết về thuật toán sắp xếp}
+
+\textbf{Bài toán sắp xếp (Sorting Problem):}
+
+\begin{itemize}
+    \item \textbf{Input:} Dãy $n$ phần tử $\langle a_1, a_2, ..., a_n \rangle$
+    \item \textbf{Output:} Một hoán vị $\langle a'_1, a'_2, ..., a'_n \rangle$ sao cho 
+    $a'_1 \le a'_2 \le ... \le a'_n$
+\end{itemize}
+
+\textbf{Phân loại thuật toán sắp xếp:}
+\begin{itemize}
+    \item \textbf{Comparison-based sorting:} Dựa trên phép so sánh giữa các phần tử
+        \begin{itemize}
+            \item Cận dưới lý thuyết: $\Omega(n \log n)$
+            \item Ví dụ: Bubble Sort, Selection Sort, Insertion Sort, Merge Sort, Quick Sort, Heap Sort
+        \end{itemize}
+    \item \textbf{Non-comparison sorting:} Không dựa trên phép so sánh
+        \begin{itemize}
+            \item Có thể đạt độ phức tạp tuyến tính $O(n)$ trong điều kiện đặc biệt
+            \item Ví dụ: Counting Sort, Radix Sort, Bucket Sort
+        \end{itemize}
+    \item \textbf{In-place sorting:} Sử dụng $O(1)$ hoặc $O(\log n)$ bộ nhớ phụ
+    \item \textbf{Stable sorting:} Giữ nguyên thứ tự tương đối của các phần tử bằng nhau
+\end{itemize}
+
+\subsection*{1.1 So sánh các thuật toán sắp xếp}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{|>{\centering\arraybackslash}m{3cm}|
+                >{\centering\arraybackslash}m{2.5cm}|
+                >{\centering\arraybackslash}m{2.5cm}|
+                >{\centering\arraybackslash}m{2.5cm}|
+                >{\centering\arraybackslash}m{2cm}|
+                >{\centering\arraybackslash}m{2cm}|}
+\hline
+\textbf{Algorithm} & \textbf{Best Case} & \textbf{Average Case} & \textbf{Worst Case} & \textbf{Stable} & \textbf{In-place} \\ \hline
+Bubble Sort & $O(n)$ & $O(n^2)$ & $O(n^2)$ & Yes & Yes \\ \hline
+Selection Sort & $O(n^2)$ & $O(n^2)$ & $O(n^2)$ & No & Yes \\ \hline
+Insertion Sort & $O(n)$ & $O(n^2)$ & $O(n^2)$ & Yes & Yes \\ \hline
+Merge Sort & $O(n \log n)$ & $O(n \log n)$ & $O(n \log n)$ & Yes & No \\ \hline
+Quick Sort & $O(n \log n)$ & $O(n \log n)$ & $O(n^2)$ & No & Yes \\ \hline
+\end{tabular}
+\end{center}
+
+
+
+\section*{2 Các thuật toán sắp xếp cơ bản}
+\subsection*{2.1 Bubble Sort}
+\textbf{Ý tưởng:} Thuật toán \textit{Bubble Sort} so sánh các cặp phần tử liên tiếp trong mảng và hoán đổi nếu sai thứ tự. Sau mỗi lượt lặp, phần tử lớn nhất trong đoạn chưa sắp xếp sẽ “nổi” về cuối mảng. Lặp lại cho đến khi mảng được sắp xếp.
+
+\subsection*{a) Viết pseudocode cho thuật toán Bubble Sort.}
+\begin{algorithm}[H]
+\caption{Pseudocode Bubble Sort cơ bản}
+\KwIn{Mảng $A[0 \dots n-1]$}
+\KwOut{Mảng $A$ được sắp xếp tăng dần}
+\For{$i \leftarrow 0$ \KwTo $n - 1$}{
+    \For{$j \leftarrow 0$ \KwTo $n - i - 1$}{
+        \If{$A[j] > A[j + 1]$}{
+            Swap $A[j]$ và $A[j + 1]$\;
+        }
+    }
+}
+\end{algorithm}
+
+\subsection*{b) Cài đặt thuật toán Bubble Sort trong C++.}
+\begin{lstlisting}
+#include <iostream>
+using namespace std;
+
+void BubbleSort(int a[], int n) {
+    int temp;
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (a[j] > a[j + 1]) {
+                temp = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = temp;
+            }
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection*{c) Tối ưu hóa thuật toán bằng cách dừng sớm khi mảng đã được sắp xếp.}
+\begin{algorithm}[H]
+\caption{Pseudocode Bubble Sort tối ưu}
+\KwIn{Mảng $A[0 \dots n-1]$}
+\KwOut{Mảng $A$ được sắp xếp tăng dần}
+\For{$i \leftarrow 0$ \KwTo $n - 1$}{
+    \texttt{flag} $\leftarrow$ \texttt{false}\;
+    \For{$j \leftarrow 0$ \KwTo $n - i - 1$}{
+        \If{$A[j] > A[j + 1]$}{
+            Swap $A[j]$ và $A[j + 1]$\;
+            \texttt{flag} $\leftarrow$ \texttt{true}\;
+        }
+    }
+    \If{\texttt{flag} = \texttt{false}}{
+        \textbf{break}\; % dừng sớm
+    }
+}
+\end{algorithm}
+
+\begin{lstlisting}
+#include <iostream>
+using namespace std;
+
+void BubbleSort_Optimized(int a[], int n) {
+    int temp;
+    for (int i = 0; i < n - 1; i++) {
+        bool flag = false;
+        for (int j = 0; j < n - i - 1; j++) {
+            if (a[j] > a[j + 1]) {
+                temp = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = temp;
+                flag = true;
+            }
+        }
+        if (!flag) break;
+    }
+}
+\end{lstlisting}
+
+\subsection*{d) So sánh số phép so sánh và số phép hoán đổi giữa phiên bản cơ bản và phiên bản
+tối ưu với các bộ test khác nhau.}
+\subsection*{Cách thực hiện}
+Để so sánh, ta sửa hai hàm để đếm:
+\begin{itemize}
+  \item \texttt{count}: tổng số lần thực hiện phép so sánh điều kiện.
+  \item \texttt{swap}: tổng số lần hoán đổi (swap).
+\end{itemize}
+Chạy với các bộ test:
+\begin{enumerate}
+  \item Mảng đã sắp xếp xuôi: \verb|{1,2,3,4,5}|
+  \item Mảng đã sắp xếp ngược: \verb|{5,4,3,2,1}|
+  \item Mảng ngẫu nhiên: \verb|{3,1,4,2,5}|
+  \item Mảng có phần tử trùng: \verb|{2,3,2,1,3}|
+\end{enumerate}
+
+\subsection*{Cài đặt đếm số phép}
+\begin{lstlisting}
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+void Bubblesort(int a[], int n, int &count, int &swap){
+    int temp;
+    count = swap = 0; 
+    for(int i = 0 ; i < n - 1; i++){
+        for(int j = 0; j < n - i - 1; j++){
+            count++; 
+            if(a[j] > a[j + 1]){
+                temp = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = temp;
+                swap++; 
+            }
+        }
+    }
+}
+void Bubblesortflag(int a[], int n, int &count, int &swap){
+    int temp;
+    count = swap = 0; 
+    for(int i = 0 ; i < n - 1; i++){
+        bool flag = false;
+        for(int j = 0; j < n - i - 1; j++){
+            count++;
+            if(a[j] > a[j + 1]){
+                temp = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = temp;
+                swap++; 
+                flag = true;
+            }
+        }
+        if(!flag){
+            break; 
+        }
+    }
+}
+void nhapmang(int a[], int n){
+    cout << "Nhap mang:" << endl;
+    for(int i = 0; i < n; i++){
+        cin >> a[i];
+    }
+}
+void inmang(int a[], int n){
+    for (int i = 0; i < n; i++){
+        cout << a[i] << " ";
+    }
+    cout << endl;
+}
+int main(){
+    int n;
+    int a[n], b[n];
+    int count1, swap1, count2, swap2;
+    cout << "Nhap so phan tu cua mang: ";
+    cin >> n;
+    nhapmang(a, n);
+
+    for(int i = 0; i < n; i++){
+        b[i] = a[i];
+    }
+
+    Bubblesort(a, n, count1, swap1);
+    Bubblesortflag(b, n, count2, swap2);
+
+    cout << "\nKet qua phien ban co ban:\n";
+    inmang(a, n);
+    cout << "So phep so sanh: " << count1 << endl;
+    cout << "So phep hoan doi: " << swap1 << endl;
+
+    cout << "\nKet qua phien ban toi uu:\n";
+    inmang(b, n);
+    cout << "So phep so sanh: " << count2 << endl;
+    cout << "So phep hoan doi: " << swap2 << endl;
+
+    return 0;
+}
+
+\end{lstlisting}
+
+\subsection*{Bảng kết quả minh họa (n = 5)}
+\begin{table}[H]
+\centering
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Test case & Phiên bản & Số so sánh & Số hoán đổi & Ghi chú \\
+\midrule
+\multirow{2}{*}{Đã sắp xếp xuôi \{1,2,3,4,5\}} & Cơ bản & 10 & 0 & chạy đủ vòng \\
+ & Tối ưu & 4 & 0 & dừng sớm sau 1 lượt \\
+\midrule
+\multirow{2}{*}{Đảo ngược \{5,4,3,2,1\}} & Cơ bản & 10 & 10 & trường hợp xấu nhất \\
+ & Tối ưu & 10 & 10 & không khác biệt \\
+\midrule
+\multirow{2}{*}{Ngẫu nhiên \{3,1,4,2,5\}} & Cơ bản & 10 & 4 &  \\
+ & Tối ưu & 8 & 4 & giảm vài phép so sánh \\
+\midrule
+\multirow{2}{*}{Phần tử trùng \{2,3,2,1,3\}} & Cơ bản & 10 & 4 &  \\
+ & Tối ưu & 7 & 4 & dừng sớm hơn \\
+\bottomrule
+\end{tabular}
+\caption{So sánh số phép so sánh và hoán đổi (ví dụ minh họa n=5)}
+\end{table}
+
+\subsection*{Nhận xét}
+\begin{itemize}
+  \item Phiên bản tối ưu giúp \textbf{giảm nhiều phép so sánh} khi mảng đã (hoặc gần) sắp xếp, dẫn tới thời gian thực thi nhỏ hơn trong các trường hợp tốt.
+  \item Trong trường hợp xấu nhất (mảng đảo ngược), cả hai phiên bản đều thực hiện số phép so sánh/hoán đổi tương đương và vẫn có độ phức tạp \(O(n^2)\).
+  \item Với mảng có phần tử trùng hoặc ngẫu nhiên, phiên bản tối ưu thường giảm được một số vòng, tức giảm một phần phép so sánh nhưng không thay đổi nhiều số hoán đổi tổng thể.
+\end{itemize}
+
+\section*{Kết luận}
+Bubble Sort là thuật toán đơn giản, dễ hiểu, nhưng hiệu quả kém với dữ liệu lớn do độ phức tạp \(O(n^2)\). Tuy nhiên, biến thể tối ưu với cờ \texttt{flag} là một cải tiến nhỏ nhưng hữu ích khi dữ liệu gần như đã sắp xếp.
+
+
+\section*{2.2 Selection Sort}
+\textbf{Ý tưởng:} Thuật toán \textit{Selection Sort} tìm và đưa phần tử nhỏ nhất trong phần chưa sắp xếp và đặt nó vào vị trí
+đầu của phần chưa sắp xếp đó.
+\subsection*{a. Pseudocode cho thuật toán Selection Sort}
+\begin{algorithm}[H]
+\caption{Selection Sort (Cơ bản)}
+\KwIn{Mảng $A[1..n]$}
+\KwOut{Mảng $A$ sau khi đã được sắp xếp tăng dần}
+\For{$i \gets 1$ \KwTo $n-1$}{
+    $min \gets i$\;
+    \For{$j \gets i+1$ \KwTo $n$}{
+        \If{$A[j] < A[min]$}{
+            $min \gets j$\;
+        }
+    }
+    Swap $A[i]$ và $A[min]$\;
+}
+\end{algorithm}
+
+\subsection*{b. Cài đặt C++}
+\begin{lstlisting}
+void Selectionsort(int a[], int n){
+    for (int i = 0; i < n-1; i++){
+        int min = i;
+        for (int j = i+1; j < n; j++){
+            if(a[j]<a[min]){
+                min = j;
+            }
+        }
+        swap(a[i], a[min]);
+    }
+}
+\end{lstlisting}
+
+\subsection*{c. Giải thích độ phức tạp}
+
+Dù mảng đã được sắp xếp hay chưa, thuật toán vẫn phải duyệt toàn bộ các phần tử để tìm phần tử nhỏ nhất trong mỗi vòng lặp.  
+Do đó, số phép so sánh không thay đổi, luôn là:
+\[
+\frac{n(n-1)}{2}
+\]
+
+\noindent
+$\Rightarrow$ Độ phức tạp thời gian là \( O(n^2) \) cho cả \textbf{Best case} và \textbf{Worst case}.
+\vspace{1em}
+
+\subsection*{d. Chứng minh số lần hoán đổi là \( n - 1 \)}
+
+Trong mỗi vòng lặp ngoài (từ \(1\) đến \(n-1\)):
+\begin{itemize}
+    \item Ta chọn ra phần tử nhỏ nhất trong phần chưa sắp xếp.
+    \item Nếu phần tử đó chưa đúng vị trí, ta chỉ hoán đổi đúng một lần.
+\end{itemize}
+
+\noindent
+$\Rightarrow$ Mỗi vòng lặp ngoài có tối đa một lần hoán đổi.
+$\Rightarrow$ Tổng số lần hoán đổi là : n - 1.\\
+\noindent
+Đây cũng là số lần hoán đổi tối thiểu, vì mỗi lần hoán đổi giúp đặt đúng vị trí cho ít nhất một phần tử.
+
+\section*{2.3 Insertion Sort }
+\textbf{Ý tưởng :} Xây dựng mảng sắp xếp bằng cách chèn từng phần tử từ mảng chưa sắp xếp
+vào vị trí thích hợp.
+\subsection*{a.Viết pseudocode cho thuật toán Insertion Sort}
+\begin{algorithm}[H]
+\caption{Insertion Sort}
+\KwIn{Mảng $A[1..n]$}
+\KwOut{Mảng $A$ sau khi đã được sắp xếp tăng dần}
+\For{$i \gets 2$ \KwTo $n$}{
+    $key \gets A[i]$\;
+    $j \gets i - 1$\;
+    \While{$j > 0$ \textbf{and} $A[j] > key$}{
+        $A[j+1] \gets A[j]$\;
+        $j \gets j - 1$\;
+    }
+    $A[j+1] \gets key$\;
+}
+\end{algorithm}
+
+\subsection*{b.Cài đặt thuật toán Insertion Sort}
+\begin{lstlisting}
+void InsectionSort(int a[], int n){
+    for(int i = 0; i < n-1; i++){
+        int key = a[i+1];
+        int j = i;
+        while(j >= 0 && a[j] > key){
+            a[j+1] = a[j];
+            j--;
+        }
+        a[j+1] = key; 
+    }
+}
+\end{lstlisting}
+\subsection*{c.Cài đặt phiên bản Binary Insertion Sort (sử dụng binary search để tìm vị trí chèn).
+Phân tích độ phức tạp và so sánh với phiên bản thường.}
+\begin{lstlisting}
+int binarysearch(int a[], int m, int left, int right){
+    while (left <= right){
+        int mid = left + (right - left)/2;
+        if (a[mid] > m) 
+            right = mid - 1;
+        else 
+            left = mid + 1;
+        }
+    return left;
+}
+void binaryInsertionsort(int a[], int n){
+    for (int i = 1; i <  n; i++){
+        int m = a[i];
+        int pos = binarysearch(a, m, 0, i-1);
+        for(int j = i - 1; j >= pos; j--){
+            a[j+1] = a[j];
+        }
+        a[pos] = m;
+    }
+}
+\end{lstlisting}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Thuật toán} & \textbf{Tìm vị trí chèn} & \textbf{Dịch phần tử} & \textbf{Tổng} \\
+\hline
+Insertion Sort & $O(n)$ & $O(n)$ & $O(n^2)$ \\
+Binary Insertion Sort & $O(\log n)$ & $O(n)$ & $O(n^2)$ \\
+\hline
+\end{tabular}
+\caption{So sánh độ phức tạp của Insertion Sort và Binary Insertion Sort}
+\end{table}
+
+\subsection*{d.Giải thích tại sao Insertion Sort hiệu quả với Mảng nhỏ (n < 50) và mảng gần như
+đã sắp xếp.}
+\begin{enumerate}
+    \item Mảng nhỏ ($n < 50$):
+    \begin{itemize}
+        \item Overhead của thuật toán đơn giản rất thấp.
+        \item O(n²) chưa trở nên tồi tệ với n nhỏ.
+    \end{itemize}
+    \item Mảng gần như sắp xếp:
+    \begin{itemize}
+        \item Số lần dịch các phần tử rất ít, gần như chỉ chèn một vài phần tử.
+        \item Thời gian thực tế gần O(n) thay vì O(n²).
+    \end{itemize}
+    $\Rightarrow$ Insertion Sort là lựa chọn lý tưởng cho mảng nhỏ hoặc mảng gần như đã sắp xếp nhờ tính đơn giản và hiệu quả trên dữ liệu gần sắp xếp.
+\end{enumerate}
+
+\section*{3 Các thuật toán sắp xếp hiệu quả}
+\subsection*{3.1 Merge Sort}
+
+\textbf{Ý tưởng:} Sử dụng kỹ thuật chia để trị (Divide and Conquer):
+\begin{itemize}
+\item \textbf{Chia:} Chia mảng thành 2 nửa
+\item \textbf{Trị:} Sắp xếp đệ quy từng nửa
+\item \textbf{Hợp nhất:} Trộn 2 mảng con đã sắp xếp
+\end{itemize}
+\subsection*{a. Viết pseudocode cho thuật toán Merge Sort và hàm Merge.}
+
+\begin{algorithm}[H]
+\caption{Thuật toán Merge Sort và hàm Merge}
+\KwIn{Mảng $A$, chỉ số $left, right$}
+\KwOut{Mảng $A$ sau khi được sắp xếp tăng dần}
+\SetAlgoLined
+\SetKwFunction{FMergeSort}{MergeSort}
+\SetKwFunction{FMerge}{Merge}
+\SetKwProg{Fn}{Function}{:}{}
+% --- Merge ---
+\Fn{\FMerge{$A, left, mid, right$}}{
+    $n_1 \gets mid - left + 1$\;
+    $n_2 \gets right - mid$\;
+    Tạo mảng tạm $L[1..n_1]$, $R[1..n_2]$\;
+    \For{$i \gets 1$ \textbf{to} $n_1$}{
+        $L[i] \gets A[left + i - 1]$\;
+    }
+    \For{$j \gets 1$ \textbf{to} $n_2$}{
+        $R[j] \gets A[mid + j]$\;
+    }
+    $i \gets 1$, $j \gets 1$, $k \gets left$\;
+    \While{$i \leq n_1$ \textbf{and} $j \leq n_2$}{
+        \If{$L[i] \leq R[j]$}{
+            $A[k] \gets L[i]$; $i \gets i + 1$\;
+        }
+        \Else{
+            $A[k] \gets R[j]$; $j \gets j + 1$\;
+        }
+        $k \gets k + 1$\;
+    }
+    \While{$i \leq n_1$}{
+        $A[k] \gets L[i]$\;
+        $i \gets i + 1$; $k \gets k + 1$\;
+    }
+    \While{$j \leq n_2$}{
+        $A[k] \gets R[j]$\;
+        $j \gets j + 1$; $k \gets k + 1$\;
+    }
+}
+
+% --- MergeSort ---
+\Fn{\FMergeSort{$A, left, right$}}{
+    \If{$left < right$}{
+        $mid \gets \lfloor (left + right)/2 \rfloor$\;
+        \FMergeSort{$A, left, mid$}\;
+        \FMergeSort{$A, mid + 1, right$}\;
+        \FMerge{$A, left, mid, right$}\;
+    }
+}
+
+\end{algorithm}
+
+\subsection*{b. Công thức truy hồi và phân tích bằng Master Theorem}
+
+Giả sử mảng có $n$ phần tử.  
+Mỗi lần ta chia mảng làm 2 nửa, mỗi nửa có thời gian chạy $T(n/2)$.  
+Khi hợp lại, ta tốn thời gian $O(n)$ (vì phải duyệt qua cả hai nửa để trộn).
+
+\[
+T(n) = 2T\left(\frac{n}{2}\right) + O(n)
+\]
+
+Áp dụng \textbf{Master Theorem:}
+
+\[
+a = 2,\quad b = 2,\quad f(n) = n
+\]
+
+Ta có:
+\[
+\log_b a = \log_2 2 = 1
+\]
+
+\[
+f(n) = \Theta(n^{\log_b a}) = \Theta(n)
+\]
+
+Vì $f(n) = \Theta(n^{\log_b a})$, theo \textbf{Trường hợp 2 của Master Theorem}:
+
+\[
+T(n) = \Theta(n \log n)
+\]
+
+\textbf{Độ phức tạp thời gian:}
+\[
+\begin{cases}
+\text{Trung bình: } O(n \log n) \\
+\text{Xấu nhất: } O(n \log n) \\
+\text{Tốt nhất: } O(n \log n)
+\end{cases}
+\]
+\subsection*{c. Cài đặt Merge Sort trong C++ với cả hai cách:}
+\begin{itemize}
+    \item Top-down (đệ quy)
+    \begin{lstlisting}
+void merge(int a[], int left, int mid, int right){
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+    int *L = new int[n1];
+    int *R = new int[n2];
+    
+    for(int i = 0; i < n1; i++){
+        L[i] = a[left + i];
+    }
+    for(int j = 0; j < n2; j++){
+        R[j] = a[mid + 1 + j]; 
+    }
+    int i = 0, j = 0;
+    while(i < n1 && j < n2){
+        if (L[i] <= R[j]){
+            a[left++] = L[i++];
+        }
+        else{
+            a[left++] = R[j++];
+        }
+    }
+    while(i < n1) a[left++] = L[i++];
+    while(j < n2) a[left++] = R[j++];
+
+    delete[] L;
+    delete[] R;
+}
+void mergesort(int a[], int left, int right){
+    if(left < right){
+        int mid = left + (right -left)/2;
+        mergesort(a, left, mid);
+        mergesort(a, mid +1, right);
+        merge(a, left, mid, right);
+    }
+}
+    \end{lstlisting}
+    
+\end{itemize}
+\begin{itemize}
+    \item Bottom-up (lặp)
+    \begin{lstlisting}
+void mergesortiterative(int a[], int n){
+    for(int iter = 1; iter < n; iter*=2){
+        for(int left = 0; left < n - iter + 1; left +=  2*iter){
+            int mid = left + iter - 1;
+            int right = min(left + 2 *iter - 1, n-1);
+            merge(a,left, mid, right);
+        }
+    }
+}
+    \end{lstlisting}
+\end{itemize}
+\subsection*{d. Chứng minh Merge Sort là ổn định}
+\textbf{Định nghĩa.} Một thuật toán sắp xếp gọi là \emph{ổn định} nếu với mọi cặp phần tử có khóa bằng nhau, thứ tự tương đối của chúng trong kết quả sắp xếp giữ nguyên như thứ tự ban đầu.
+\textbf{Ý tưởng.} Merge Sort chia mảng thành hai nửa, sắp xếp đệ quy hai nửa rồi ghép lại bằng hàm \texttt{merge}. Nếu khi so sánh phần tử từ hai nửa, ta chọn phần tử từ nửa trái trước khi hai khóa bằng nhau (ví dụ dùng điều kiện \texttt{L[i] <= R[j]}), thì thao tác ghép này bảo toàn thứ tự tương đối của các phần tử có khóa bằng nhau. Do đó Merge Sort ổn định.
+
+\textbf{Chứng minh (quy nạp).}
+\begin{itemize}
+  \item \emph{Cơ sở:} Với $n=0$ hoặc $n=1$ mảng đã sắp xếp và ổn định.
+  \item \emph{Bước quy nạp:} Giả sử với mọi $m<n$, Merge Sort sắp xếp ổn định. Xét mảng có $n$ phần tử. Sau khi chia, hai nửa có kích thước nhỏ hơn $n$ và theo giả thiết quy nạp chúng được sắp xếp ổn định. Áp dụng luận điểm: nếu \texttt{merge} khi gặp hai phần tử bằng nhau luôn lấy phần tử từ nửa trái trước, thì thao tác ghép hai dãy đã sắp xếp ổn định sẽ cho kết quả ổn định. Do đó toàn bộ Merge Sort trên $n$ phần tử là ổn định.
+\end{itemize}
+
+\textbf{Nhận xét thực hành:} Trong cài đặt, cần sử dụng so sánh dạng \texttt{if (L[i] <= R[j])} để đảm bảo tính ổn định. Nếu dùng \texttt{<} thì thuật toán có thể không ổn định.
+\subsection*{e. Vì sao Merge Sort cần $O(n)$ bộ nhớ phụ?}
+
+Trong quá trình trộn (\textit{merge}), thuật toán cần sử dụng hai mảng tạm $L$ và $R$ để lưu trữ hai nửa của mảng con.  
+Giả sử ta đang gộp hai mảng con có kích thước lần lượt là $n_1$ và $n_2$, khi đó:
+\[
+n_1 + n_2 = n
+\]
+
+Tổng kích thước bộ nhớ cần cấp phát cho hai mảng tạm là $O(n)$.
+
+Sau khi quá trình gộp hoàn tất, các phần tử từ hai mảng tạm $L$ và $R$ được sao chép ngược trở lại vào mảng chính $A$.
+
+$\rightarrow$ Do đó, bộ nhớ phụ của Merge Sort là $O(n)$.
+
+\subsection*{3.2 Quick Sort}
+\textbf{Ý tưởng :} Sử dụng kỹ thuật chia để trị với phương pháp partition:
+\begin{itemize}
+    \item \textbf{Chọn pivot :} Chọn một phần tử làm pivot
+    \item \textbf{Partition :} Chia mảng thành 2 phần: nhỏ hơn pivot và lớn hơn pivot
+    \item \textbf{Đệ quy :} Sắp xếp đệ quy hai phần
+\end{itemize}
+\subsection*{a. Viết pseudocode cho thuật toán Quick Sort và hàm Partition.}
+\begin{algorithm}[H]
+\caption{Thuật toán Quick Sort và hàm Partition (chọn pivot đầu mảng)}
+\KwIn{Mảng $a$, chỉ số $n, m$}
+\KwOut{Mảng $a$ sau khi được sắp xếp tăng dần}
+\SetAlgoLined
+\SetKwFunction{FQuickSort}{QuickSort}
+\SetKwFunction{FPartition}{Partition}
+\SetKwProg{Fn}{Function}{:}{}
+
+% --- Partition ---
+\Fn{\FPartition{$a, n, m$}}{
+    $pivot \gets a[n]$\;
+    $i \gets n + 1$\;
+    $j \gets m$\;
+    \While{true}{
+        \While{$i \le j$ \textbf{and} $a[i] \le pivot$}{
+            $i \gets i + 1$\;
+        }
+        \While{$i \le j$ \textbf{and} $a[j] > pivot$}{
+            $j \gets j - 1$\;
+        }
+        \If{$i > j$}{
+            \textbf{break}\;
+        }
+        \textbf{swap}$(a[i], a[j])$\;
+    }
+    \textbf{swap}$(a[n], a[j])$ \tcp{Đưa pivot về đúng vị trí}
+    \Return{$j$}\;
+}
+
+% --- QuickSort ---
+\Fn{\FQuickSort{$a, n, m$}}{
+    \If{$n < m$}{
+        $p \gets$ \FPartition{$a, n, m$}\;
+        \FQuickSort{$a, n, p - 1$}\;
+        \FQuickSort{$a, p + 1, m$}\;
+    }
+}
+\end{algorithm}
+\subsection*{b. Cài đặt Quick Sort với các phương pháp chọn pivot khác nhau (đầu mảng, cuối
+mảng, ngẫu nhiên).}
+\textbf{1. Đầu mảng}
+\begin{lstlisting}
+int partition_low(int a[], int n, int m){
+    int pivot = a[n];
+    int i = n + 1;
+    int j = m;
+    while(true){
+        while(i <= j && a[i] <= pivot){
+            i++;
+        }
+        while(i <= j && a[j] > pivot){
+            j--;
+        }
+        if(i>j) break;
+        swap(a[i], a[j]);
+    }
+    swap(a[n], a[j]);
+    return j;
+}
+\end{lstlisting}
+\textbf{2. Cuối mảng}
+\begin{lstlisting}
+int partition_high(int a[], int n, int m){
+    int pivot1 = a[m];
+    int i = n;
+    int j = m-1;
+    while(true){
+        while(i <=j && a[i] <= pivot1){
+            i++;
+        }
+        while(i <=j && a[j] > pivot1){
+            j--;
+        }
+        if(i > j) break;
+        swap(a[i], a[j]);
+    }
+    swap(a[i], a[m]);
+    return i;
+}
+\end{lstlisting}
+\textbf{3. Ngẫu nhiên}
+\begin{lstlisting}
+int partition(int a[], int n, int m){
+    int pivot2 = n + rand() % (m-n+1); 
+    int pivot3 = a[pivot2];
+    int i=n, j=m;
+    while(true){
+        while(i <= j && a[i] <= pivot3){
+            i++;
+        }
+        while(i <= j && a[j] > pivot3){
+            j--;
+        }
+        if(i > j) break;
+        swap(a[i], a[j]);
+    }
+    swap(a[pivot2], a[j]);
+    return j;
+}
+\end{lstlisting}
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|l|c|c|p{7cm}|}
+\hline
+\textbf{Trường hợp mảng} & \textbf{Pivot đầu/cuối} & \textbf{Pivot ngẫu nhiên} & \textbf{Giải thích} \\ \hline
+\textbf{Mảng ngẫu nhiên} & Hiệu quả trung bình $\mathbf{O(n \log n)}$ & $\mathbf{O(n \log n)}$ & Cả hai hoạt động tốt, mảng được chia tương đối cân bằng. \\ \hline
+\textbf{Mảng đã sắp xếp} & Rất kém $\mathbf{O(n^2)}$ & $\mathbf{O(n \log n)}$ & Pivot đầu/cuối luôn chọn phần tử nhỏ nhất hoặc lớn nhất $\rightarrow$ chia mảng mất cân bằng. \\ \hline
+\textbf{Mảng có nhiều phần tử trùng} & Gần $\mathbf{O(n^2)}$ & $\mathbf{O(n \log n)}$ (có thể cải tiến) & Pivot đầu/cuối dễ chọn phần tử trùng, gây nhiều bước so sánh dư thừa. \\ \hline
+\end{tabular}%
+}
+\caption{So sánh hiệu suất Quick Sort theo cách chọn Pivot}
+\end{table}
+\subsection*{4 Bài tập}
+4.1 \\ Cho một mảng các chuỗi, sắp xếp chúng theo thứ tự từ điển nhưng không phân biệt hoa
+thường.
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+bool compareIgnoreCase(const string&a, const string&b){
+    string A = a, B = b;
+    transform(A.begin(), A.end(), A.begin(), ::tolower);
+    transform(B.begin(), B.end(), B.begin(), ::tolower);
+    return A < B;
+}
+int partitionquicksort(vector<string>& a, int n, int m){
+    string pivot = a[m];
+    int i = n - 1;
+    for(int j = n; j < m ; j++){
+        if(compareIgnoreCase(a[j], pivot)){
+            i++;
+            swap(a[i],a[j]);
+        }
+    }
+    swap(a[i+1],a[m]);
+    return i+1;
+}
+void quicksort(vector<string>& a, int n, int m){
+    if(n < m){
+        int p = partitionquicksort(a, n, m);
+        quicksort(a, n, p - 1);
+        quicksort(a, p + 1, m);
+    }
+}
+void merge(vector<string>& a, int left, int mid, int right){
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+    vector<string> L(n1), R(n2);
+    for(int i = 0; i < n1; i++){
+        L[i] = a[left + i];
+    }
+    for(int j = 0; j < n2; j++){
+        R[j] = a[mid + 1 + j];
+    }
+    int i = 0, j = 0, k = left;
+    while (i < n1 && j < n2){
+        if(compareIgnoreCase(L[i], R[j])){
+            a[k++] = L[i++];
+        }
+        else{
+            a[k++] = R[j++];
+        }
+    }
+    while(i < n1) a[k++] = L[i++];
+    while(j < n2) a[k++] = R[j++];
+}
+void mergesort(vector<string>& a, int left, int right){
+    if(left < right){
+        int mid = left + (right - left)/2;
+        mergesort(a, left, mid);
+        mergesort(a, mid + 1, right);
+        merge(a, left, mid, right);
+    }
+}
+void Bubblesort(vector<string>& a, int n){
+    int temp;
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < n-i-1; j++){
+            if(compareIgnoreCase(a[j+1], a[j])){
+                swap(a[j], a[j+1]);
+            }
+        }
+    }
+}
+void selectionsort(vector<string>& a, int n){
+    for(int i = 0 ;i < n-1; i++){
+        int min = i;
+        for(int j = i+1; j < n; j++){
+            if(compareIgnoreCase(a[j], a[min])){
+                min = j;
+            }
+        }
+        swap(a[i], a[min]);
+    }
+}
+void insectionsort(vector<string>& a, int n){
+    for(int i = 0;i < n-1; i++){
+        string key = a[i+1];
+        int j = i;
+        while(j >= 0 && compareIgnoreCase(key, a[j])){
+            a[j+1] = a[j];
+            j--;
+        }
+        a[j+1] = key;
+    }
+}
+int main(){
+    vector<string> a = {"Banana", "date", "cherry", "apple"};
+    // quicksort(a, 0, a.size() - 1);
+    // mergesort(a, 0 , a.size() - 1);
+    // Bubblesort(a, a.size());
+    // selectionsort(a, a.size());
+    insectionsort(a, a.size());
+    for(int k = 0; k < a.size(); k++){
+        cout << a[k] << " ";
+    }
+}
+\end{lstlisting}
+4.2\\
+Cho hai mảng đã sắp xếp A[n] và B[m], trộn chúng thành một mảng sắp xếp C[n + m]
+trong thời gian O(n + m).
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> mergearray(const vector<int>& a, const vector<int>& b){
+    vector<int> C(a.size() + b.size());
+    int i = 0, j = 0, k = 0;
+    while(i < a.size() && j < b.size()){
+        if(a[i] < b[j]){
+            C[k++] = a[i++];
+        }
+        else{
+            C[k++] = b[j++];
+        }
+    }
+    while(i < a.size()) C[k++] = a[i++];
+    while(j < b.size()) C[k++] = b[j++];
+    return C;
+}
+void bubblesortarray(vector<int>& a, int n){
+    int temp;
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < n-i-1; j++){
+            if(a[j] > a[j+1]){
+                swap(a[j], a[j+1]);
+            }
+        }
+    }
+}
+void selectionsortarray(vector<int>& a, int n){
+    for(int i = 0; i < n-1; i++){
+        int min = i;
+        for (int j = i+1; j < n; j++){
+            if(a[j] < a[min]){
+                min = j;
+            }
+        }
+        swap(a[i], a[min]);
+    }
+}
+void insertionsortarray(vector<int>& a, int n){
+    for(int i = 0; i < n-1; i++){
+        int k = a[i+1];
+        int j = i;
+        while(i >= 0 && a[j] > k){
+            a[j+1] = a[j];
+            j--;
+        }
+        a[j+1] = k;
+    }
+}
+int partition_low(vector<int>& a, int n, int m){
+    int pivot = a[n];
+    int i = n+1;
+    int j = m;
+    while(true){
+        while(i <= j && a[i] < pivot){
+            i++;
+        }
+        while(i <= j && a[j] > pivot){
+            j--;
+        }
+        if(i > j) break;
+        swap(a[i], a[j]);
+    }
+    swap(a[n], a[j]);
+    return j;
+}
+void quicksortarray(vector<int>& a, int n, int m){
+    if(n < m){
+        int p = partition_low(a,n,m);
+        quicksortarray(a, n, p);
+        quicksortarray(a, p+1, m);
+    }
+}
+int main(){
+    vector<int> a = {1,4,6,9,10};
+    vector<int> b = {2,3,8,14,15};
+    vector<int> D = a;
+    D.insert(D.end(), b.begin(), b.end());
+
+    quicksortarray(D, 0, D.size()-1);
+    cout << "Quick Sort array" << endl;
+    for(int k = 0; k < D.size(); k++){
+        cout << D[k] << " ";
+    }    
+    cout << " " << endl;
+
+    bubblesortarray(D, D.size()-1);
+    cout <<"Bubble Sort array : " << endl ;
+        for(int k = 0; k < D.size(); k++){
+        cout << D[k] << " ";
+    }
+    cout << " " << endl;
+
+    selectionsortarray(D, D.size()-1);
+    cout <<"Selection Sort array : " << endl ;
+        for(int k = 0; k < D.size(); k++){
+        cout << D[k] << " ";
+    }
+    cout << " " << endl;
+
+    insertionsortarray(D, D.size()-1);
+    cout <<"Insertion Sort array : " << endl ;
+    for(int k = 0; k < D.size(); k++){
+        cout << D[k] << " ";
+    }
+    cout << " " << endl;
+
+    cout << "Merge Sort array : "  << endl;
+    vector<int> C = mergearray(a,b);
+    for(int m = 0; m < a.size() + b.size(); m++){
+        cout << C[m] << " ";
+    }
+}
+\end{lstlisting}
+4.3\\
+Cho một mảng số nguyên dương intervals với intervals[i] = [starti
+, endi
+] đại diện cho
+các khoảng thời gian. Hãy hợp nhất tất cả các khoảng thời gian chồng lấn và trả về mảng
+chứa các khoảng thời gian đã hợp nhất được sắp xếp theo thứ tự tăng dần của start time.
+\begin{lstlisting}
+#include<bits/stdc++.h>
+using namespace std;
+
+void bubblesort(vector<vector<int>>& a){
+    for(int i = 0; i < a.size() - 1; i++){
+        for(int j = 0; j < a.size() - 1 - i; j++){
+            if(a[j][0] > a[j+1][0]){
+                swap(a[j], a[j+1]);
+            }
+        }
+    }
+}
+vector<vector<int>> interval1(vector<vector<int>>& a){
+    bubblesort(a);
+
+    vector<vector<int>> bubble;
+    for(auto a1 : a){
+        if(bubble.empty() || bubble.back()[1] < a1[0]){
+            bubble.push_back(a1);
+        }
+        else{
+            bubble.back()[1] = max(bubble.back()[1], a1[1]);
+        }
+    }
+    return bubble;
+}
+
+void selectionsort(vector<vector<int>>& b){
+    for(int i = 0; i < b.size()-1; i++){
+        int min = i;
+        for(int j = i +1; j < b.size(); j++){
+            if(b[j] < b[min]){
+                min = j;
+            }
+        }
+        swap(b[i], b[min]);
+    }
+}
+vector<vector<int>> interval2(vector<vector<int>>& b){
+    selectionsort(b);
+
+    vector<vector<int>> selection;
+    for(auto b1 : b){
+        if(selection.empty() || selection.back()[1] < b1[0]){
+            selection.push_back(b1);
+        }else{
+            selection.back()[1] = max(selection.back()[1], b1[1]);
+        }
+    }
+    return selection;
+}
+
+void insertionsort(vector<vector<int>>& c){
+    for(int i = 0; i < c.size()-1; i++){
+        vector<int> c1 = c[i+1];
+        int j = i;
+        while(j >= 0 && c[j+1] < c[j]){
+            c[j+1] = c[j];
+            j--;
+        }
+        c[i+1] = c1;
+    }
+}
+vector<vector<int>> interval3(vector<vector<int>>& c){
+    insertionsort(c);
+    vector<vector<int>> insertion;
+    for(auto c2 :c){
+        if(insertion.empty() || insertion.back()[1] < c2[0]){
+            insertion.push_back(c2);
+        }else{
+            insertion.back()[1] = max(insertion.back()[1], c2[1]);
+        }
+    }
+    return insertion;
+}
+
+void merge(vector<vector<int>>& d, int left, int mid, int right){
+    int n1 = mid- left + 1;
+    int n2 = right - mid;
+    vector<vector<int>> L(n1), R(n2);
+    for(int i=0; i < n1; i++){
+        L[i] = d[left+i];
+    }
+    for(int j = 0; j < n2; j++){
+        R[j] = d[mid+1+j];
+    }
+    int i = 0, j = 0, k = left;
+    while(i < n1 && j < n2){
+        if(L[i][0] < R[j][0]){
+            d[k++] = L[i++];
+        }else{
+            d[k++] = R[j++];
+        }
+    }
+    while(i < n1) d[k++] = L[i++];
+    while(j < n2) d[k++] = R[j++];
+}
+void mergesort(vector<vector<int>>& d, int left, int right){
+    if(left < right) {
+        int mid = left + (right - left)/2;
+        mergesort(d, left, mid);
+        mergesort(d, mid+1, right);
+        merge(d,left,mid,right);
+    }
+}
+vector<vector<int>> interval4(vector<vector<int>>& d){
+    mergesort(d,0,d.size()-1);
+
+    vector<vector<int>> merge1;
+    for(auto d1 : d){
+        if(merge1.empty() || merge1.back()[1] < d1[0]){
+            merge1.push_back(d1);
+        }else{
+            merge1.back()[1] = max(merge1.back()[1], d1[1]);
+        }
+    }
+    return merge1;
+}
+
+int partition(vector<vector<int>>& e, int n, int m){
+    vector<int> pivot = e[m];
+    int i = n-1;
+    for(int j = n; j < m; j++){
+        if(e[j][0] < pivot[0]){
+            i++;
+            swap(e[i], e[j]);
+        }
+    }
+    swap(e[i+1], e[m]);
+    return i+1;
+}
+void quicksort(vector<vector<int>>& e, int n, int m){
+    if(n < m){
+        int p = partition(e,n,m);
+        quicksort(e,n,p-1);
+        quicksort(e,p+1,m);
+    }
+}
+vector<vector<int>> interval5(vector<vector<int>>& e){
+    quicksort(e,0,e.size()-1);
+
+    vector<vector<int>> quick;
+    for(auto e1 : e){
+        if(quick.empty() || quick.back()[1] < e1[0]){
+            quick.push_back(e1);
+        }else{
+            quick.back()[1] = max(quick.back()[1], e1[1]);
+        }
+    }
+    return quick;
+}
+int main(){
+    cout << "Bubble Sort " << endl;
+    vector<vector<int>> a = {{1,3},{2,6},{8,10},{15,18}};
+    for(auto a2 : interval1(a)){
+        cout << "[" << a2[0] << "," << a2[1] <<"]" ;
+    }
+    cout << endl;
+
+    cout << "Selection Sort" << endl;
+    vector<vector<int>> b = {{1,6},{3,10},{9,20},{36,71}};
+    for(auto b2 : interval2(b)){
+        cout << "[" << b2[0] << "," << b2[1] << "]";
+    }
+    cout << endl;
+
+    cout << "Insertion Sort" << endl;
+    vector<vector<int>> c = {{1,5},{3,20},{12, 34},{45,62},{65,70}};
+    for(auto c3 : interval3(c)){
+        cout << "[" << c3[0] << "," << c3[1] << "]";
+    }
+    cout << endl;
+
+    cout << "Merge sort "<< endl;
+    vector<vector<int>> d = {{1,5},{4,10},{13,18},{32,60}};
+    for(auto d2 : interval4(d)){
+        cout << "[" << d2[0] << "," << d2[1] << "]";
+    }
+    cout << endl;
+
+    cout << "Quick Sort" << endl;
+    vector<vector<int>> e = {{1,6},{4,25},{45,97},{222,855}};
+    for(auto e2 : interval5(e)){
+        cout << "[" << e2[0] << "," << e2[1] << "]";
+    }
+    cout << endl;
+}
+\end{lstlisting}
+4.4\\
+Hybrid Sort: Thiết kế một thuật toán sắp xếp kết hợp nhiều thuật toán:
+\begin{itemize}
+    \item Sử dụng Quick Sort làm thuật toán chính.
+    \item Chuyển sang Insertion Sort khi mảng con nhỏ hơn 10 phần tử.
+    \item Sử dụng Median-of-three (chọn trung vị trong ba phần tử đầu, giữa, cuối làm pivot).
+    \item So sánh với Quick Sort thuần.
+\end{itemize}
+\begin{lstlisting}
+#include <bits/stdc++.h>
+using namespace std;
+
+const int INSERTION_THRESHOLD = 10;
+
+void insertionSort(vector<int>& arr, int low, int high) {
+    for (int i = low + 1; i <= high; ++i) {
+        int key = arr[i];
+        int j = i - 1;
+        while (j >= low && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
+        arr[j + 1] = key;
+    }
+}
+
+int medianOfThree(vector<int>& arr, int low, int high) {
+    int mid = (low + high) / 2;
+    int a = arr[low], b = arr[mid], c = arr[high];
+    if ((a > b) != (a > c)) return low;
+    else if ((b > a) != (b > c)) return mid;
+    else return high;
+}
+
+int partition(vector<int>& arr, int low, int high) {
+    int medianIndex = medianOfThree(arr, low, high);
+    swap(arr[medianIndex], arr[high]);
+    int pivot = arr[high];
+    int i = low - 1;
+
+    for (int j = low; j < high; ++j) {
+        if (arr[j] <= pivot) {
+            ++i;
+            swap(arr[i], arr[j]);
+        }
+    }
+    swap(arr[i + 1], arr[high]);
+    return i + 1;
+}
+
+void hybridSort(vector<int>& arr, int low, int high) {
+    while (low < high) {
+        if (high - low + 1 < INSERTION_THRESHOLD) {
+            insertionSort(arr, low, high);
+            break;
+        } else {
+            int pi = partition(arr, low, high);
+            if (pi - low < high - pi) {
+                hybridSort(arr, low, pi - 1);
+                low = pi + 1;
+            } else {
+                hybridSort(arr, pi + 1, high);
+                high = pi - 1;
+            }
+        }
+    }
+}
+int partitionSimple(vector<int>& arr, int low, int high) {
+    int pivot = arr[high];
+    int i = low - 1;
+    for (int j = low; j < high; ++j) {
+        if (arr[j] <= pivot) {
+            ++i;
+            swap(arr[i], arr[j]);
+        }
+    }
+    swap(arr[i + 1], arr[high]);
+    return i + 1;
+}
+
+void quickSort(vector<int>& arr, int low, int high) {
+    if (low < high) {
+        int pi = partitionSimple(arr, low, high);
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    const int N = 100000;
+    vector<int> arr1(N), arr2(N);
+    srand(time(nullptr));
+    for (int i = 0; i < N; ++i) {
+        int x = rand() % N;
+        arr1[i] = x;
+        arr2[i] = x;
+    }
+
+    auto start = chrono::high_resolution_clock::now();
+    hybridSort(arr1, 0, N - 1);
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double> hybridTime = end - start;
+
+    start = chrono::high_resolution_clock::now();
+    quickSort(arr2, 0, N - 1);
+    end = chrono::high_resolution_clock::now();
+    chrono::duration<double> quickTime = end - start;
+
+    cout << fixed << setprecision(5);
+    cout << "Hybrid Sort time: " << hybridTime.count() << " s\n";
+    cout << "Quick Sort time:  " << quickTime.count() << " s\n";
+
+    cout << "Giong nhau: " << boolalpha << (arr1 == arr2) << "\n";
+    return 0;
+}
+
+\end{lstlisting}
+\end{document}
